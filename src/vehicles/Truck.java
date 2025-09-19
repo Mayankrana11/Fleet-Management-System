@@ -3,18 +3,18 @@ package vehicles;
 import interfaces.*;
 import exceptions.*;
 
-// Car class
-public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier, Maintainable {
+//truck class
+public class Truck extends LandVehicle implements FuelConsumable, CargoCarrier, Maintainable {
 
     private double fuelLevel;
-    private int passengerCapacity = 5;
-    private int currentPassengers;
+    private double cargoCapacity = 10000; // in kg
+    private double currentCargo;
     private boolean maintenanceNeeded;
 
-    public Car(String id, String model, double maxSpeed, int numWheels) {
+    public Truck(String id, String model, double maxSpeed, int numWheels) {
         super(id, model, maxSpeed, numWheels);
         this.fuelLevel = 0;
-        this.currentPassengers = 0;
+        this.currentCargo = 0;
         this.maintenanceNeeded = false;
     }
 
@@ -29,13 +29,13 @@ public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier
             throw new InsufficientFuelException("Not enough fuel, please refuel.");
         }
         fuelLevel -= requiredFuel;
-        addMileage(distance); // ✅ updates total mileage
-        System.out.println("Driving on road for " + distance + " km.");
+        addMileage(distance);
+        System.out.println("Hauling cargo for " + distance + " km.");
     }
 
     @Override
     public double calculateFuelEfficiency() {
-        return 15.0; // km per liter
+        return 6.0;
     }
 
     // Fuel Consumable
@@ -62,31 +62,31 @@ public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier
         return required;
     }
 
-    // Passenger Carrier
+    // Cargo Carrier
     @Override
-    public void boardPassengers(int count) throws OverloadException {
-        if (currentPassengers + count > passengerCapacity) {
-            throw new OverloadException("Overload occurred, try reducing passengers.");
+    public void loadCargo(double weight) throws OverloadException {
+        if (currentCargo + weight > cargoCapacity) {
+            throw new OverloadException("Overload occurred, try reducing the load.");
         }
-        currentPassengers += count;
+        currentCargo += weight;
     }
 
     @Override
-    public void disembarkPassengers(int count) throws InvalidOperationException {
-        if (count > currentPassengers) {
-            throw new InvalidOperationException("Cannot disembark more passengers than onboard.");
+    public void unloadCargo(double weight) throws InvalidOperationException {
+        if (weight > currentCargo) {
+            throw new InvalidOperationException("Cannot unload more cargo than currently loaded.");
         }
-        currentPassengers -= count;
+        currentCargo -= weight;
     }
 
     @Override
-    public int getPassengerCapacity() {
-        return passengerCapacity;
+    public double getCargoCapacity() {
+        return cargoCapacity;
     }
 
     @Override
-    public int getCurrentPassengers() {
-        return currentPassengers;
+    public double getCurrentCargo() {
+        return currentCargo;
     }
 
     // Maintainable
@@ -97,14 +97,14 @@ public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier
 
     @Override
     public boolean needsMaintenance() {
-        //check since last maintenance
-        return maintenanceNeeded || (getCurrentMileage() - getLastMaintenanceMileage() > 10000);
+        return maintenanceNeeded || 
+               (getCurrentMileage() - getLastMaintenanceMileage()) > 15000;
     }
 
     @Override
     public void performMaintenance() {
         maintenanceNeeded = false;
-        setLastMaintenanceMileage(getCurrentMileage()); //record service point
-        System.out.println("Car " + getId() + " has been serviced.");
+        setLastMaintenanceMileage(getCurrentMileage());
+        System.out.println("Truck " + getId() + " has been serviced.");
     }
 }

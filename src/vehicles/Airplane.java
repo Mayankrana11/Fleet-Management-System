@@ -3,22 +3,26 @@ package vehicles;
 import interfaces.*;
 import exceptions.*;
 
-// Car class
-public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier, Maintainable {
+
+ //Airplane class 
+
+public class Airplane extends AirVehicle implements FuelConsumable, CargoCarrier, PassengerCarrier, Maintainable {
 
     private double fuelLevel;
-    private int passengerCapacity = 5;
+    private int passengerCapacity = 200;
     private int currentPassengers;
+    private double cargoCapacity = 10000;
+    private double currentCargo;
     private boolean maintenanceNeeded;
 
-    public Car(String id, String model, double maxSpeed, int numWheels) {
-        super(id, model, maxSpeed, numWheels);
+    public Airplane(String id, String model, double maxSpeed, double maxAltitude) {
+        super(id, model, maxSpeed, maxAltitude);
         this.fuelLevel = 0;
         this.currentPassengers = 0;
+        this.currentCargo = 0;
         this.maintenanceNeeded = false;
     }
-
-    // Movement
+    // Movement logic
     @Override
     public void move(double distance) throws InvalidOperationException, InsufficientFuelException {
         if (distance < 0) {
@@ -29,16 +33,16 @@ public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier
             throw new InsufficientFuelException("Not enough fuel, please refuel.");
         }
         fuelLevel -= requiredFuel;
-        addMileage(distance); // ✅ updates total mileage
-        System.out.println("Driving on road for " + distance + " km.");
+        addMileage(distance);
+        System.out.println("Flying at " + getMaxAltitude() + " meters for " + distance + " km.");
     }
 
     @Override
     public double calculateFuelEfficiency() {
-        return 15.0; // km per liter
+        return 5.0; // km per liter
     }
 
-    // Fuel Consumable
+    // FuelConsumable methods
     @Override
     public void refuel(double amount) throws InvalidOperationException {
         if (amount <= 0) {
@@ -62,11 +66,11 @@ public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier
         return required;
     }
 
-    // Passenger Carrier
+    // Passengercarrier methods
     @Override
     public void boardPassengers(int count) throws OverloadException {
         if (currentPassengers + count > passengerCapacity) {
-            throw new OverloadException("Overload occurred, try reducing passengers.");
+            throw new OverloadException("Overload occurred, too many passengers.");
         }
         currentPassengers += count;
     }
@@ -89,7 +93,34 @@ public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier
         return currentPassengers;
     }
 
-    // Maintainable
+    // CargoCarrier methods
+    @Override
+    public void loadCargo(double weight) throws OverloadException {
+        if (currentCargo + weight > cargoCapacity) {
+            throw new OverloadException("Overload occurred, cargo exceeds capacity.");
+        }
+        currentCargo += weight;
+    }
+
+    @Override
+    public void unloadCargo(double weight) throws InvalidOperationException {
+        if (weight > currentCargo) {
+            throw new InvalidOperationException("Cannot unload more cargo than currently loaded.");
+        }
+        currentCargo -= weight;
+    }
+
+    @Override
+    public double getCargoCapacity() {
+        return cargoCapacity;
+    }
+
+    @Override
+    public double getCurrentCargo() {
+        return currentCargo;
+    }
+
+    // Maintainable methods
     @Override
     public void scheduleMaintenance() {
         maintenanceNeeded = true;
@@ -97,14 +128,19 @@ public class Car extends LandVehicle implements FuelConsumable, PassengerCarrier
 
     @Override
     public boolean needsMaintenance() {
-        //check since last maintenance
-        return maintenanceNeeded || (getCurrentMileage() - getLastMaintenanceMileage() > 10000);
+        return maintenanceNeeded || 
+               (getCurrentMileage() - getLastMaintenanceMileage()) > 10000;
     }
 
     @Override
     public void performMaintenance() {
         maintenanceNeeded = false;
-        setLastMaintenanceMileage(getCurrentMileage()); //record service point
-        System.out.println("Car " + getId() + " has been serviced.");
+        setLastMaintenanceMileage(getCurrentMileage());
+        System.out.println("Airplane " + getId() + " has been serviced.");
+    }
+
+    //altitude getter
+    public double getMaxAltitude() {
+        return super.getMaxAltitude();
     }
 }
