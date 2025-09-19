@@ -1,7 +1,7 @@
 # Fleet-Management-System
 
 A Java OOPs based console application for managing a fleet of different vehicles such as cars, trucks, buses, airplanes, and cargo ships.  
-This project was developed as part of the Advanced Programming (AP-1) Assignment.
+This project was developed as part of the CSE201 Advanced Programming Assignment.
 
 ---
 
